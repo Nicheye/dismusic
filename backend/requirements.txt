@@ -5,3 +5,4 @@ djangorestframework-simplejwt==5.3.0
 Pillow
 flake8
 drf-yasg
+python-dotenv
