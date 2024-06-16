@@ -142,10 +142,17 @@ class LikeDislikeView(APIView):
 class TrackView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get(self, request):
-        queryset = Track.objects.all()
-        serializer = TrackSerializer(queryset, many=True)
-        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        id = kwargs.get('id', None)
+        if id is None:
+            queryset = Track.objects.all()
+            serializer = TrackSerializer(queryset, many=True)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+        track_obj = Track.objects.get(id=id)
+        if track_obj is None:
+            return Response({'message': 'no such track'}, status=status.HTTP_404_NOT_FOUND)
+        track_ser = TrackSerializer(track_obj)
+        return Response({'data': track_ser.data}, status=status.HTTP_302_FOUND)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -199,7 +206,7 @@ class TrackView(APIView):
 class PlayView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get(request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         id = kwargs.get('id', None)
         if id is None:
             return Response({'message': 'you havent provided any id'}, status=status.HTTP_400_BAD_REQUEST)
@@ -208,5 +215,25 @@ class PlayView(APIView):
             return Response({'message': 'no such album'}, status=status.HTTP_400_BAD_REQUEST)
         track_obj.streams += 1
         track_obj.save()
-        track_ser = TrackSerializer(track_obj)
+        track_ser = TrackSerializer(track_obj, context={'request': request})
         return Response({'data': track_ser.data}, status=status.HTTP_200_OK)
+
+
+class FavPlaylistView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        liked_tracks = Track.objects.filter(like__liked_by=user)
+        tracks_ser = TrackSerializer(liked_tracks, many=True)
+        return Response({'data': tracks_ser.data}, status=status.HTTP_200_OK)
+
+
+class DisPlaylistView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        liked_tracks = Track.objects.filter(dislike__disliked_by=user)
+        tracks_ser = TrackSerializer(liked_tracks, many=True)
+        return Response({'data': tracks_ser.data}, status=status.HTTP_200_OK)
