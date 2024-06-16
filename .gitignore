@@ -15,8 +15,6 @@ db.sqlite3
 *.png
 *.gif
 
-# If you're using pipenv
-Pipfile.lock
 
 # If you're using environments
 .env
@@ -33,16 +31,3 @@ docker-compose.override.yml
 # If you're using Windows
 Thumbs.db
 ehthumbs.db
-
-backend/backendmusic/__pycache__/urls.cpython-39.pyc
-backend/main/__pycache__/admin.cpython-39.pyc
-backend/main/__pycache__/models.cpython-39.pyc
-backend/main/__pycache__/serializers.cpython-39.pyc
-backend/main/__pycache__/urls.cpython-39.pyc
-backend/main/__pycache__/views.cpython-39.pyc
-backend/backendmusic/__pycache__/urls.cpython-39.pyc
-backend/main/__pycache__/admin.cpython-39.pyc
-backend/main/__pycache__/models.cpython-39.pyc
-backend/main/__pycache__/serializers.cpython-39.pyc
-backend/main/__pycache__/urls.cpython-39.pyc
-backend/main/__pycache__/views.cpython-39.pyc
