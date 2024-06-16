@@ -34,3 +34,9 @@ docker-compose.override.yml
 Thumbs.db
 ehthumbs.db
 
+backend/backendmusic/__pycache__/urls.cpython-39.pyc
+backend/main/__pycache__/admin.cpython-39.pyc
+backend/main/__pycache__/models.cpython-39.pyc
+backend/main/__pycache__/serializers.cpython-39.pyc
+backend/main/__pycache__/urls.cpython-39.pyc
+backend/main/__pycache__/views.cpython-39.pyc
