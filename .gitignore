@@ -1,3 +1,36 @@
-backend/db.sqlite3
-backend/backendmusic/__pycache__/*
-backend/authentification/__pycache__/*
+# Django specific
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+*.sqlite3
+*.py[cod]
+*.so
+*.env
+
+# If you're using Pillow (Python Imaging Library)
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# If you're using pipenv
+Pipfile.lock
+
+# If you're using environments
+.env
+venv/
+env/
+
+# If you're using Docker
+*.local
+docker-compose.override.yml
+
+# If you're using macOS
+.DS_Store
+
+# If you're using Windows
+Thumbs.db
+ehthumbs.db
+
