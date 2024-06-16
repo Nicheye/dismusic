@@ -19,6 +19,16 @@ class AlbumViewSet(viewsets.ModelViewSet):
         })
         return context
 
+    def create(self, request):
+        data = request.data
+        user = request.user
+        serializer = AlbumSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            cover = request.FILES.get('cover')
+            serializer.save(created_by=user, cover=cover)
+            return Response({'data': serializer.data},
+                            status=status.HTTP_201_CREATED)
+
 
 class LikeDislikeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -129,10 +139,13 @@ class LikeDislikeView(APIView):
         return Response({'message': f'You disliked the post {track_obj.id}'}, status=status.HTTP_201_CREATED)
 
 
-class TrackViewSet(viewsets.ModelViewSet):
-    queryset = Track.objects.all()
-    serializer_class = TrackSerializer
+class TrackView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(self, request):
+        queryset = Track.objects.all()
+        serializer = TrackSerializer(queryset, many=True)
+        return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -140,3 +153,60 @@ class TrackViewSet(viewsets.ModelViewSet):
             'request': self.request,
         })
         return context
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        data = request.data
+
+        id = kwargs.get('id', None)
+        if id is None:
+            return Response({'message': 'you havent provided any id'}, status=status.HTTP_400_BAD_REQUEST)
+        album_obj = Album.objects.get(id=id)
+        if album_obj is None or album_obj.created_by != user:
+            return Response({'message': 'no such album'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TrackSerializer(data=data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            rec = request.FILES.get('rec')
+            serializer.save(album=album_obj, created_by=user, rec=rec)
+            return Response({'data': serializer.data}, status=status.HTTP_201_CREATED)
+
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        user = request.user
+        id = kwargs.get('id', None)
+        if id is None:
+            return Response({'message': 'you havent provided any id'}, status=status.HTTP_400_BAD_REQUEST)
+        track_instance = Track.objects.get(id=id)
+        if track_instance is None or track_instance.created_by != user:
+            return Response({'message': 'no such album'}, status=status.HTTP_400_BAD_REQUEST)
+        track_ser = TrackSerializer(track_instance, data=data)
+        if track_ser.is_valid(raise_exception=True):
+            track_ser.save()
+            return Response({'data': track_ser.data}, status=status.HTTP_202_ACCEPTED)
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        id = kwargs.get('id', None)
+        if id is None:
+            return Response({'message': 'you havent provided any id'}, status=status.HTTP_400_BAD_REQUEST)
+        track_instance = Track.objects.get(id=id)
+        if track_instance is None or track_instance.created_by != user:
+            return Response({'message': 'no such album'}, status=status.HTTP_400_BAD_REQUEST)
+        track_instance.delete()
+        return Response({'message': 'track deleted'}, status=status.HTTP_410_GONE)
+
+
+class PlayView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get(request, *args, **kwargs):
+        id = kwargs.get('id', None)
+        if id is None:
+            return Response({'message': 'you havent provided any id'}, status=status.HTTP_400_BAD_REQUEST)
+        track_obj = Track.objects.get(id=id)
+        if track_obj is None:
+            return Response({'message': 'no such album'}, status=status.HTTP_400_BAD_REQUEST)
+        track_obj.streams += 1
+        track_obj.save()
+        track_ser = TrackSerializer(track_obj)
+        return Response({'data': track_ser.data}, status=status.HTTP_200_OK)

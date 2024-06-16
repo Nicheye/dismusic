@@ -6,3 +6,4 @@ Pillow
 flake8
 drf-yasg
 python-dotenv
+psycopg2-binary

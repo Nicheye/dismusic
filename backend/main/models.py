@@ -8,6 +8,9 @@ class Album(models.Model):
     created_at = models.DateField(auto_now_add=True)
     cover = models.ImageField(upload_to="covers")
 
+    def __str__(self) -> str:
+        return f'{self.title}  {self.id}'
+
 
 class Track(models.Model):
     title = models.CharField(max_length=80)
@@ -16,6 +19,10 @@ class Track(models.Model):
     dislikes = models.IntegerField(default=0)
     rec = models.FileField(upload_to="music", null=True)
     streams = models.PositiveIntegerField(default=0)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+
+    def __str__(self) -> str:
+        return f'{self.title}  {self.album.title}'
 
 
 class Like(models.Model):

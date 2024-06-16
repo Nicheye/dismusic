@@ -52,30 +52,38 @@ class TrackSerializer(serializers.ModelSerializer):
                   'rec']
 
     def get_is_liked(self, obj):
-        request = self.context.get('request')
-        user = request.user
-        if user.is_authenticated is True:
-            like_obj = Like.objects.get(liked_by=user, track=obj)
+        try:
+            request = self.context.get('request')
+            user = request.user
+            if user.is_authenticated is True:
+                like_obj = Like.objects.get(liked_by=user, track=obj)
 
-            if like_obj:
-                self.is_disliked = False
-                return True
-            else:
-                return False
-        return False
+                if like_obj:
+                    self.is_disliked = False
+                    return True
+                else:
+                    return False
+            return False
+        except Exception as exc:
+            print(exc)
+            return False
 
     def get_is_disliked(self, obj):
-        request = self.context.get('request', None)
-        user = request.user
-        if user.is_authenticated is True:
+        try:
+            request = self.context.get('request', None)
+            user = request.user
+            if user.is_authenticated is True:
 
-            dislike_obj = DisLike.objects.get(disliked_by=user, track=obj)
+                dislike_obj = DisLike.objects.get(disliked_by=user, track=obj)
 
-            if dislike_obj:
-                return True
-            else:
-                return False
-        return False
+                if dislike_obj:
+                    return True
+                else:
+                    return False
+            return False
+        except Exception as exc:
+            print(exc)
+            return False
 
     def get_rec(self, obj):
         request = self.context.get('request', None)
